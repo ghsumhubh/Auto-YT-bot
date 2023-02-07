@@ -10,7 +10,7 @@
 ## Usage
 The perferred usage is using the interactive CLI interface, to start it type `python ./main.py `  in the CLI. Windows users may also click the "interactive.bat" file.
 
-During the first upload will prompt the user to select a youtube account in a pop-up page, this is required for the youtubeuploader package to work.
+During the first upload, the program will prompt the user to select a youtube account in a pop-up web page, this is required for the youtubeuploader package to work.
 
 ## Features
 1. Create lofi-styled videos
