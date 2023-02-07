@@ -3,9 +3,10 @@
 
 ## Setup
 - Put the python files and the bat files(optional) in the same folder.
-- Create a folder named "youtubeuploader" and put the required files there (more info in the dependenceis section)
+- Create a folder named "youtubeuploader" and put the required files there (more info in the dependenceis section) this should be in the same folder as the python files.
 - Create a folder named "images", and put the images there. ([supported formats from opencv's docs](https://docs.opencv.org/3.4/d4/da8/group__imgcodecs.html "supported formats from opencv's docs"))
 - Create a folder named "audio", and put the audio files there. (supported formats TBD, right now using mp3)
+- Create a folder named "resources" and put the previous 2 folders in there, this folder should be in the same folder as the python files.
 
 ## Usage
 The perferred usage is using the interactive CLI interface, to start it type `python ./main.py `  in the CLI. Windows users may also click the "interactive.bat" file.

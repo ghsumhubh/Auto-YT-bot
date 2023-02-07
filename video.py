@@ -12,7 +12,9 @@ TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.wav"
 TEMP_AUDIO_LOOPS_PATH = "temp_audio_loops.wav"
 TEMP_IMAGE_PATH = "temp_image.jpg"
 
-
+# TODO: all temp files are created in a temp folder
+# TODO: add a progress bar
+# TODO: organize the subfolders
 
 def one_sox_edit(command, iteration, max_iterations):
     subprocess.run(command, shell=True, check=True)
@@ -25,9 +27,7 @@ def add_loops(source, destination, loops):
     audio = AudioSegment.from_file(source)
     final_audio = audio * loops
     final_audio.export(destination, format="wav")
-
-
-    return mp.AudioFileClip(TEMP_AUDIO_PATH)
+    
 def edit_audio(audio_paths, loops=1, compilation=False):
     # pydub editing
     one_second_silence = AudioSegment.silent(duration=1000)
@@ -119,31 +119,31 @@ def save_clip(final_clip, subfolder, filename):
         final_clip.write_videofile(f"output/{filename}")
 
 
-def log_and_cleanup(audio_files, image_file, remove):
+def log_and_cleanup(audio_paths, image_path, remove):
     remove_temp_files()
 
     #log.log_image(image_file)
-    for audio_file in audio_files:
-        log.log_audio(audio_file)
+    for audio_path in audio_paths:
+        log.log_audio(audio_path)
     if remove:
         #os.remove(image_file)
-        for audio_file in audio_files:
-            os.remove(audio_file)
+        for audio_path in audio_paths:
+            os.remove(audio_path)
 
 
 def get_image_path():
-    image_files = os.listdir("images")
+    image_files = os.listdir("resources/images")
     image_file = random.choice(image_files)
     while log.image_exists(image_file):
         image_file = random.choice(image_files)
-    return "images/" + image_file
+    return "resources/images/" + image_file
 
 def get_audio_path():
-    audio_files = os.listdir("audio")
+    audio_files = os.listdir("resources/audio")
     audio_file = random.choice(audio_files)
     while log.audio_exists(audio_file):
         audio_file = random.choice(audio_files)
-    return "audio/" + audio_file
+    return "resources/audio/" + audio_file
 
 def make_video(video_name = "video.mp4", subfolder = None, remove = False):
 
@@ -155,7 +155,7 @@ def make_video(video_name = "video.mp4", subfolder = None, remove = False):
     audio = edit_audio(audio_paths, loops=1, compilation=False)
     final_clip = make_final_clip(clip, audio)
     save_clip(final_clip, subfolder, video_name)
-    log_and_cleanup(image_path, audio_paths, remove)
+    log_and_cleanup(audio_paths, image_path, remove)
 
 def make_compilation(video_name = "video.mp4", subfolder = None, remove = False, music_count = 10, loops = 1):
 
