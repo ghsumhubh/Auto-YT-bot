@@ -32,7 +32,7 @@ Make sure to follow the full setup, as it requires to create an account on the G
 `pip install numpy`
 ### Moviepy
 `pip install moviepy`
-###Pydub
+### Pydub
 `pip install pydub`
 ### Sox
 Sox 14.4.2
