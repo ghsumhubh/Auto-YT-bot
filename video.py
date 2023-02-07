@@ -7,9 +7,9 @@ import cv2
 from pydub import AudioSegment
 import subprocess
 
-TEMP_AUDIO_PATH="temp_audio.wav"
-TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.wav"
-TEMP_AUDIO_LOOPS_PATH = "temp_audio_loops.wav"
+TEMP_AUDIO_PATH="temp_audio.ogg"
+TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.ogg"
+TEMP_AUDIO_LOOPS_PATH = "temp_before_loops.ogg"
 TEMP_IMAGE_PATH = "temp_image.jpg"
 
 # TODO: all temp files are created in a temp folder
@@ -24,10 +24,12 @@ def one_sox_edit(command, iteration, max_iterations):
     print(f"{iteration}/{max_iterations} added sox edits")
 
 def add_loops(source, destination, loops):
+    # pydub editing
     audio = AudioSegment.from_file(source)
     final_audio = audio * loops
-    final_audio.export(destination, format="wav")
-    
+    final_audio.export(destination, format="ogg")
+    del final_audio
+
 def edit_audio(audio_paths, loops=1, compilation=False):
     # pydub editing
     one_second_silence = AudioSegment.silent(duration=1000)
@@ -41,7 +43,8 @@ def edit_audio(audio_paths, loops=1, compilation=False):
         audio = audio + AudioSegment.from_file(audio_paths[0])
         audio = audio + one_second_silence
     final_audio = one_second_silence + audio + one_second_silence
-    final_audio.export(TEMP_AUDIO_PATH, format="wav")
+    final_audio.export(TEMP_AUDIO_PATH, format="ogg")
+    del final_audio
     print("1/6 added pydub edits")
 
     # sox editing
