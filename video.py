@@ -9,6 +9,7 @@ import subprocess
 
 TEMP_AUDIO_PATH="temp_audio.wav"
 TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.wav"
+TEMP_AUDIO_LOOPS_PATH = "temp_audio_loops.wav"
 TEMP_IMAGE_PATH = "temp_image.jpg"
 
 
@@ -20,6 +21,13 @@ def one_sox_edit(command, iteration, max_iterations):
     os.rename(TEMP_AUDIO_PATH_EDITED, TEMP_AUDIO_PATH)
     print(f"{iteration}/{max_iterations} added sox edits")
 
+def add_loops(source, destination, loops):
+    audio = AudioSegment.from_file(source)
+    final_audio = audio * loops
+    final_audio.export(destination, format="wav")
+
+
+    return mp.AudioFileClip(TEMP_AUDIO_PATH)
 def edit_audio(audio_paths, loops=1, compilation=False):
     # pydub editing
     one_second_silence = AudioSegment.silent(duration=1000)
@@ -32,17 +40,22 @@ def edit_audio(audio_paths, loops=1, compilation=False):
         audio = one_second_silence
         audio = audio + AudioSegment.from_file(audio_paths[0])
         audio = audio + one_second_silence
-    final_audio = one_second_silence + audio * loops + one_second_silence
+    final_audio = one_second_silence + audio + one_second_silence
     final_audio.export(TEMP_AUDIO_PATH, format="wav")
-    print("1/5 added pydub edits")
+    print("1/6 added pydub edits")
 
     # sox editing
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} chorus 0.5 0.9 70 0.4 0.25 2 -t 80 0.32 0.4 2.3 -t 60 0.3 0.3 1.3 -s", 2,5)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} gain -2 pad 0 3 reverb 1.0 0.5 2.0 1.0 0 0",3,5)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} tempo 0.9",4,5)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} norm -2.0 equalizer 28 0.91q +6.7 equalizer 4585 1.17q -9.4 equalizer 5356 3.33q +8.4 equalizer 6627 1.58q +7.5 equalizer 11297 1.62q +6.2",5,5)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} chorus 0.5 0.9 70 0.4 0.25 2 -t 80 0.32 0.4 2.3 -t 60 0.3 0.3 1.3 -s", 2,6)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} gain -2 pad 0 3 reverb 1.0 0.5 2.0 1.0 0 0",3,6)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} tempo 0.9",4,6)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} norm -2.0 equalizer 28 0.91q +6.7 equalizer 4585 1.17q -9.4 equalizer 5356 3.33q +8.4 equalizer 6627 1.58q +7.5 equalizer 11297 1.62q +6.2",5,6)
 
-    return mp.AudioFileClip(TEMP_AUDIO_PATH)
+
+    # loops
+    add_loops(TEMP_AUDIO_PATH, TEMP_AUDIO_LOOPS_PATH, loops)
+    print("6/6 added loops (if any)")
+    return mp.AudioFileClip(TEMP_AUDIO_LOOPS_PATH)
+
 
 def edit_picture(picture_path, color_loss=3):
     img = cv2.imread(picture_path)
@@ -80,8 +93,12 @@ def edit_picture(picture_path, color_loss=3):
     return img
 
 def remove_temp_files():
-    os.remove(TEMP_AUDIO_PATH)
-    os.remove(TEMP_IMAGE_PATH)
+    if os.path.exists(TEMP_AUDIO_PATH):
+        os.remove(TEMP_AUDIO_PATH)
+    if os.path.exists(TEMP_AUDIO_PATH_EDITED):
+        os.remove(TEMP_AUDIO_PATH_EDITED)
+    if os.path.exists(TEMP_AUDIO_LOOPS_PATH):
+        os.remove(TEMP_AUDIO_LOOPS_PATH)
 
 def make_final_clip(clip, audio):
     final_clip = clip.set_audio(audio.set_duration(clip.duration).audio_fadein(2))
@@ -90,12 +107,16 @@ def make_final_clip(clip, audio):
     return final_clip
 
 def save_clip(final_clip, subfolder, filename):
+    # check if subfolder "output" exists
+    if not os.path.exists("output"):
+        os.mkdir("output")
+    # check if subfolder exists
     if subfolder:
-        if not os.path.exists(subfolder):
-            os.makedirs(subfolder)
-        final_clip.write_videofile(subfolder + "/" + filename)
+        if not os.path.exists(f"output/{subfolder}"):
+            os.mkdir(f"output/{subfolder}")
+        final_clip.write_videofile(f"output/{subfolder}/{filename}")
     else:
-        final_clip.write_videofile(filename)
+        final_clip.write_videofile(f"output/{filename}")
 
 
 def log_and_cleanup(audio_files, image_file, remove):
