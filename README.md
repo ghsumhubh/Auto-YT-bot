@@ -2,7 +2,7 @@
  A side project for uploading youtube videos automatically.
 
 ## Setup
-- Put the script and the bat files in the same folder.
+- Put the python files and the bat files(optional) in the same folder.
 - Create a folder named "youtubeuploader" and put the required files there (more info in the dependenceis section)
 - Create a folder named "images", and put the images there. ([supported formats from opencv's docs](https://docs.opencv.org/3.4/d4/da8/group__imgcodecs.html "supported formats from opencv's docs"))
 - Create a folder named "audio", and put the audio files there. (supported formats TBD, right now using mp3)
