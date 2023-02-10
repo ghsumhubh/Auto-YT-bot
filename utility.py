@@ -1,5 +1,5 @@
 import random
-from constants import adjectives, nouns, sentences, tags
+from constants import *
 import os
 
 def to_uppercase(string):
@@ -10,24 +10,34 @@ def to_uppercase(string):
 
 def generate_random_title():
     # pick a random adjective
-    first_word = "Lofi Study Music"
-    opening_bracket = "『"
-    closing_bracket = "』"
-    adjective = to_uppercase(random.choice(adjectives))
-    noun = to_uppercase(random.choice(nouns)) 
-    words = [first_word, opening_bracket, adjective, noun, closing_bracket]
+    title = random.choice(titles)
+    song_name = "『" + random.choice(song_names) + "』"
+    # to lower case
+    title = title.lower()
+    title = title.replace("[song name]", song_name)
+    title = to_uppercase(title)
 
     # return the combination of the two
-    return first_word + opening_bracket + adjective + " " + noun + closing_bracket
+    return title
 
 def generate_random_description():
-    # pick a random sentence
-    sentence = random.choice(sentences)
-    # pick 4-8 random tags
-    line_drops = "\n\n\n\n\n"
-    random_tags = random.sample(tags, random.randint(4, 8))
-    # return the combination of the two
-    return sentence + line_drops + "tags: " +", ".join(random_tags) + "."
+    finaL_description = ""
+    finaL_description += get_random_paragraph() + "\n\n"
+    finaL_description += socials + "\n\n\n"
+
+    hashtags_list = []
+    # pick hashtags based on rarity
+    for hashtag in hashtags:
+        threashold = random.randint(0, 1)
+        if threashold <= hashtags[hashtag]:
+            hashtags_list.append(hashtag)
+    # add the symbol
+    for i in range(len(hashtags_list)):
+        hashtags_list[i] = "#" + hashtags_list[i]
+    # shuffle the hashtags
+    random.shuffle(hashtags_list)
+    finaL_description += " ".join(hashtags_list)
+    return finaL_description
 
 def clear_screen():
     if os.name == 'posix':
@@ -35,6 +45,15 @@ def clear_screen():
     else:
         _ = os.system('cls')
 
+def get_tags():
+    return tags
 
 def continue_confirmation():
     input("Press enter to continue")
+    
+
+def get_random_paragraph():
+    return random.choice(paragraphs)
+
+def get_socials():
+    return socials

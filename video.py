@@ -7,9 +7,8 @@ import cv2
 from pydub import AudioSegment
 import subprocess
 
-TEMP_AUDIO_PATH="temp_audio.ogg"
-TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.ogg"
-TEMP_AUDIO_LOOPS_PATH = "temp_before_loops.ogg"
+TEMP_AUDIO_PATH="temp_audio.flac"
+TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.flac"
 TEMP_IMAGE_PATH = "temp_image.jpg"
 
 # TODO: all temp files are created in a temp folder
@@ -27,7 +26,7 @@ def add_loops(source, destination, loops):
     # pydub editing
     audio = AudioSegment.from_file(source)
     final_audio = audio * loops
-    final_audio.export(destination, format="ogg")
+    final_audio.export(destination, format="flac")
     del final_audio
 
 def edit_audio(audio_paths, loops=1, compilation=False):
@@ -43,21 +42,18 @@ def edit_audio(audio_paths, loops=1, compilation=False):
         audio = audio + AudioSegment.from_file(audio_paths[0])
         audio = audio + one_second_silence
     final_audio = one_second_silence + audio + one_second_silence
-    final_audio.export(TEMP_AUDIO_PATH, format="ogg")
+    final_audio.export(TEMP_AUDIO_PATH, format="flac")
     del final_audio
-    print("1/6 added pydub edits")
+    print("1/5 added pydub edits")
 
     # sox editing
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} chorus 0.5 0.9 70 0.4 0.25 2 -t 80 0.32 0.4 2.3 -t 60 0.3 0.3 1.3 -s", 2,6)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} gain -2 pad 0 3 reverb 1.0 0.5 2.0 1.0 0 0",3,6)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} tempo 0.9",4,6)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} norm -2.0 equalizer 28 0.91q +6.7 equalizer 4585 1.17q -9.4 equalizer 5356 3.33q +8.4 equalizer 6627 1.58q +7.5 equalizer 11297 1.62q +6.2",5,6)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} chorus 0.5 0.9 70 0.4 0.25 2 -t 80 0.32 0.4 2.3 -t 60 0.3 0.3 1.3 -s", 2,5)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} gain -2 pad 0 3 reverb 1.0 0.5 2.0 1.0 0 0",3,5)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} tempo 0.9",4,5)
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} norm -2.0 equalizer 28 0.91q +6.7 equalizer 4585 1.17q -9.4 equalizer 5356 3.33q +8.4 equalizer 6627 1.58q +7.5 equalizer 11297 1.62q +6.2",5,5)
 
 
-    # loops
-    add_loops(TEMP_AUDIO_PATH, TEMP_AUDIO_LOOPS_PATH, loops)
-    print("6/6 added loops (if any)")
-    return mp.AudioFileClip(TEMP_AUDIO_LOOPS_PATH)
+    return mp.AudioFileClip(TEMP_AUDIO_PATH)
 
 
 def edit_picture(picture_path, color_loss=3):
@@ -100,11 +96,11 @@ def remove_temp_files():
         os.remove(TEMP_AUDIO_PATH)
     if os.path.exists(TEMP_AUDIO_PATH_EDITED):
         os.remove(TEMP_AUDIO_PATH_EDITED)
-    if os.path.exists(TEMP_AUDIO_LOOPS_PATH):
-        os.remove(TEMP_AUDIO_LOOPS_PATH)
 
-def make_final_clip(clip, audio):
-    final_clip = clip.set_audio(audio.set_duration(clip.duration).audio_fadein(2))
+
+def add_audio_to_clip(clip, audio, loops=1):
+    audio = mp.afx.audio_loop(audio, nloops=loops)
+    final_clip = clip.set_audio(audio)
     final_clip = final_clip.set_fps(1)
     final_clip = final_clip.set_duration(audio.duration)
     return final_clip
@@ -127,7 +123,8 @@ def log_and_cleanup(audio_paths, image_path, remove):
 
     #log.log_image(image_file)
     for audio_path in audio_paths:
-        log.log_audio(audio_path)
+        #log.log_audio(audio_path)
+        pass
     if remove:
         #os.remove(image_file)
         for audio_path in audio_paths:
@@ -137,15 +134,15 @@ def log_and_cleanup(audio_paths, image_path, remove):
 def get_image_path():
     image_files = os.listdir("resources/images")
     image_file = random.choice(image_files)
-    while log.image_exists(image_file):
-        image_file = random.choice(image_files)
+    #while log.image_exists(image_file):
+        #image_file = random.choice(image_files)
     return "resources/images/" + image_file
 
 def get_audio_path():
     audio_files = os.listdir("resources/audio")
     audio_file = random.choice(audio_files)
-    while log.audio_exists(audio_file):
-        audio_file = random.choice(audio_files)
+    #while log.audio_exists(audio_file):
+        #audio_file = random.choice(audio_files)
     return "resources/audio/" + audio_file
 
 def make_video(video_name = "video.mp4", subfolder = None, remove = False):
@@ -156,7 +153,7 @@ def make_video(video_name = "video.mp4", subfolder = None, remove = False):
     # edit the image in openCV and return a moviepy image
     clip = edit_picture(image_path, color_loss=2)
     audio = edit_audio(audio_paths, loops=1, compilation=False)
-    final_clip = make_final_clip(clip, audio)
+    final_clip = add_audio_to_clip(clip, audio, loops=1)
     save_clip(final_clip, subfolder, video_name)
     log_and_cleanup(audio_paths, image_path, remove)
 
@@ -168,7 +165,7 @@ def make_compilation(video_name = "video.mp4", subfolder = None, remove = False,
     # edit the image in openCV and return a moviepy image
     clip = edit_picture(image_path, color_loss=2)
     audio = edit_audio(audio_paths, loops=loops, compilation=True)
-    final_clip = make_final_clip(clip, audio)
+    final_clip = add_audio_to_clip(clip, audio, loops=loops)
     save_clip(final_clip, subfolder, video_name)
     log_and_cleanup(audio_paths, image_path, remove)
 

@@ -1,12 +1,12 @@
 import subprocess
 import os
 import json
-from utility import generate_random_description, generate_random_title
+from utility import generate_random_description, generate_random_title, get_tags
 
 
 def upload_video(video_name = "video.mp4"):
     # create a file called "metadata.json"
-    create_metadata_file(description=generate_random_description(),video_name=generate_random_title())
+    create_metadata_file(description=generate_random_description(),video_name=generate_random_title(), tags=get_tags())
     # run a command in terminal to upload the video
     completed_process = subprocess.run(["./youtubeuploader/youtubeuploader", "-filename", video_name, "-metaJSON", "metadata.json"])
     # delete the metadata file
@@ -21,11 +21,11 @@ def upload_video(video_name = "video.mp4"):
 def delete_metadata_file():
     os.remove("metadata.json")
 
-def create_metadata_file(description, video_name = "video.mp4"):
+def create_metadata_file(description, video_name, tags):
     data = {
     "title": video_name,
     "description": description,
-    "tags": ["music", "study"],
+    "tags": tags,
     "privacyStatus": "public",
     "madeForKids": False,
     "embeddable": True,

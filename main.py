@@ -53,7 +53,9 @@ def interactive_create():
 def interactive_generate():
     clear_screen()
     print ("1. Generate video names")
-    print ("2. Back")
+    print ("2. Generate video descriptions")
+    print ("3. Generate video tags")
+    print ("4. Back")
     choice = input("Enter your choice: ")
     if choice == "1":
         video_amount = input("Enter video amount: ")
@@ -62,6 +64,17 @@ def interactive_generate():
         continue_confirmation()
         return "Generated {} video names".format(video_amount)
     elif choice == "2":
+        video_amount = input("Enter video amount: ")
+        clear_screen()
+        descriptions_only_routine(int(video_amount))
+        continue_confirmation()
+        return "Generated {} video descriptions".format(video_amount)
+    elif choice == "3":
+        clear_screen()
+        tags_only_routine()
+        continue_confirmation()
+        return "Generated video tags"
+    elif choice == "4":
         return
 
 def show_main_menu(result):

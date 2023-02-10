@@ -1,4 +1,37 @@
-adjectives = ["melodic", "harmonic", "rhythmic", "syncopated", "melancholic", "cadential", "tonal", "dissonant", "percussive", "modal", "expressive", "atonal", "dramatic", "lyrical", "emotional", "dynamic", "complex", "simple", "virtuosic", "orchestral", "electronic", "ambient", "minimalistic", "ethereal", "sensual", "intense", "energetic", "majestic", "playful", "catchy", "gritty", "rough", "smooth", "soulful", "funky", "jazzy", "bluesy", "rocky", "classical", "contemporary", "emotive", "somber", "luminous", "mellow", "dulcet", "rich", "resonant", "pensive", "provocative", "evocative", "poignant", "atmospheric", "ethereal", "elegant", "euphonic", "emphatic", "edgy", "exotic", "exhilarating", "exciting", "evocative", "ethereal", "evocative", "ecstatic", "eccentric", "exquisite", "exotic", "electrifying", "exalted", "exotic"]
-nouns = ["melody", "harmony", "beat", "tempo", "chord", "progression", "arrangement", "cadence", "rhythm", "pitch", "timbre", "key", "interval", "composition", "song", "piece", "score", "orchestration", "instrumentation", "arrangement", "soundscape", "landscape", "texture", "groove", "riff", "hook", "bridge", "refrain", "verse", "chorus", "solo", "performance", "ensemble", "orchestra", "band", "artist", "conductor", "composer", "producer", "symphony", "crescendo", "dynamics", "counterpoint", "opera", "aria", "sonata", "concerto", "cadenza", "fugue", "symphonic", "choral", "harmonic progression", "melodic line", "orchestral arrangement", "harmonic variation","melodic motif","musical composition", "orchestral suite", "symphonic poem", "opera", "overture", "symphony", "sonata", "concerto", "cantata", "chamber music", "oratorio", "musical", "ballet", "libretto", "choral music", "chorus", "string quartet", "piano sonata", "piano concerto", "symphony orchestra", "brass band", "marching band", "jazz band", "big band", "bluegrass band", "rock band", "pop band", "hip hop group", "DJ", "producer", "studio", "recording", "live performance", "jam session", "rehearsal"]
-sentences = ['Unleash your full potential with the power of music while studying.','Put your study sessions on autopilot with the perfect background music.','Music is the secret ingredient to achieving a laser-like focus while studying.','Elevate your studying experience with the right kind of music to keep you motivated.','Take your studying to the next level with the perfect blend of music and inspiration.','Let the music guide you to a state of deep focus while studying.','Improve your retention and recall with the perfect study soundtrack.','Say goodbye to distractions and hello to productivity with the right music.','Transform your study space into a sanctuary of learning with the right music.','Unlock your brain\'s full potential with the power of music and studying.','Find your perfect study rhythm with a curated selection of music.','Get in the zone and crush your studies with the perfect background music.','Experience the benefits of music-enhanced studying and watch your grades soar.']
-tags = ['music','melody','study','innovation','experimental','focus','inspirational','productivity','motivation','concentration','learning','brainpower','study music','study soundtrack','study with music','study techniques']
+
+
+paragraphs = []
+# read file located in /resources/paragraphs.txt
+with open("resources/text/paragraphs.txt", "r", encoding="utf-8") as f:
+    paragraph =""
+    for line in f:
+        if "#" in line:
+            paragraphs.append(paragraph)
+            paragraph = ""
+        else:
+            paragraph += line
+
+
+# read file located in /resources/socials.txt
+with open("resources/text/socials.txt", "r", encoding="utf-8") as f:
+    socials = f.read()
+
+# read file located in /resources/song names.txt
+with open("resources/text/song names.txt", "r", encoding="utf-8") as f:
+    song_names = f.read().split("\n")
+
+# read file located in /resources/titles.txt
+with open("resources/text/titles.txt", "r", encoding="utf-8") as f:
+    titles = f.read().split("\n")
+
+# read file located in /resources/tags.txt
+with open("resources/text/tags.txt", "r", encoding="utf-8") as f:
+    tags = f.read().split("\n")
+
+# read file located in /resources/hashtags.txt each line is item:rarity
+hashtags = {}
+with open("resources/text/hashtags.txt", "r", encoding="utf-8") as f:
+    for line in f:
+        line = line.split(":")
+        hashtags[line[0]] = float(line[1])
+    

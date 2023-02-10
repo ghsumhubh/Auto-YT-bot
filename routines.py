@@ -3,7 +3,7 @@ from utility import clear_screen
 from video import make_video, make_compilation
 from upload import upload_video
 from remove import remove_video
-from utility import clear_screen, generate_random_title, generate_random_description
+from utility import clear_screen, generate_random_title, generate_random_description, get_tags
 
 def normal_routine(num_of_videos):
     for i in range(num_of_videos):
@@ -13,8 +13,8 @@ def normal_routine(num_of_videos):
         make_video(video_name, remove=False)
         clear_screen()
         print("Uploading video {}/{}".format(i+1, num_of_videos)) 
-        had_error = upload_video(video_name) 
-        remove_video(video_name)
+        had_error = upload_video(f"output/{video_name}") 
+        remove_video(f"output/{video_name}")
         if had_error:
             return i
     return num_of_videos
@@ -27,8 +27,8 @@ def normal_routine_compilation(num_of_videos, music_count=10, loops=1):
         make_compilation(video_name, remove=False, music_count = music_count, loops = loops)
         clear_screen()
         print("Uploading video {}/{}\n\n".format(i+1, num_of_videos))
-        had_error = upload_video(video_name) 
-        remove_video(video_name)
+        had_error = upload_video(f"output/{video_name}") 
+        remove_video(f"output/{video_name}")
         if had_error:
             return i
     return num_of_videos
@@ -51,3 +51,12 @@ def names_only_routine(num_of_names):
     clear_screen()
     for i in range(num_of_names):
         print(generate_random_title())
+
+def descriptions_only_routine(num_of_descriptions):
+    clear_screen()
+    for i in range(num_of_descriptions):
+        print(generate_random_description())
+
+def tags_only_routine():
+    clear_screen()
+    print(get_tags())
