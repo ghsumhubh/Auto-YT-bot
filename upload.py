@@ -7,7 +7,7 @@ from utility import generate_random_description, generate_random_title, get_tags
 def upload_video(video_name):
     path = f"output/{video_name}.mp4"
     # create a file called "metadata.json"
-    create_metadata_file(description=generate_random_description(),video_name=generate_random_title(), tags=get_tags())
+    create_metadata_file(description=generate_random_description(),video_name=video_name, tags=get_tags())
     # run a command in terminal to upload the video
     completed_process = subprocess.run(["./youtubeuploader/youtubeuploader", "-filename", video_name, "-metaJSON", "metadata.json"])
     # delete the metadata file
