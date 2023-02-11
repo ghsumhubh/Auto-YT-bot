@@ -57,3 +57,6 @@ def get_random_paragraph():
 
 def get_socials():
     return socials
+
+def get_sox_lofi_command():
+    return sox_presets["lofi"]

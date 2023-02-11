@@ -35,3 +35,9 @@ with open("resources/text/hashtags.txt", "r", encoding="utf-8") as f:
         line = line.split(":")
         hashtags[line[0]] = float(line[1])
     
+# read the file located in /resources/sox_presets.txt each preset is saved as key#preset
+sox_presets = {}
+with open("resources/text/sox_presets.txt", "r", encoding="utf-8") as f:
+    for line in f:
+        line = line.split("#")
+        sox_presets[line[0]] = line[1]

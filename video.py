@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 from pydub import AudioSegment
 import subprocess
+from utility import *
 
 TEMP_AUDIO_PATH="temp_audio.flac"
 TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.flac"
@@ -28,7 +29,7 @@ def add_loops(source, destination, loops):
     final_audio.export(destination, format="flac")
     del final_audio
 
-def edit_audio(audio_paths, loops=1, compilation=False):
+def edit_audio(audio_paths, compilation=False, type="lofi"):
     # pydub editing
     one_second_silence = AudioSegment.silent(duration=1000)
     if compilation:
@@ -43,35 +44,44 @@ def edit_audio(audio_paths, loops=1, compilation=False):
     final_audio = one_second_silence + audio + one_second_silence
     final_audio.export(TEMP_AUDIO_PATH, format="flac")
     del final_audio
-    print("1/5 added pydub edits")
-
-    # sox editing
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} chorus 0.5 0.9 70 0.4 0.25 2 -t 80 0.32 0.4 2.3 -t 60 0.3 0.3 1.3 -s", 2,5)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} gain -2 pad 0 3 reverb 1.0 0.5 2.0 1.0 0 0",3,5)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} tempo 0.9",4,5)
-    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} norm -2.0 equalizer 28 0.91q +6.7 equalizer 4585 1.17q -9.4 equalizer 5356 3.33q +8.4 equalizer 6627 1.58q +7.5 equalizer 11297 1.62q +6.2",5,5)
+    print("1/2 added pydub edits")
+    if type == "lofi":
+        command = get_sox_lofi_command()
+    else:
+        #command = get_sox_command()
+        pass
+    one_sox_edit(f"sox {TEMP_AUDIO_PATH} {TEMP_AUDIO_PATH_EDITED} {command}",2,2)
 
 
     return mp.AudioFileClip(TEMP_AUDIO_PATH)
 
-def create_picture_clip(picture_path, text = None):
+def create_picture_clip(picture_path, has_text = False):
     img = cv2.imread(picture_path)
     img = cv2.convertScaleAbs(img, alpha=1.1, beta=0)
+    # get the color that will contrast the most with the background
+
+    
 
     # add text
-    if text:
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        scale = 1
+    if has_text:
+        text = "Unleash Your Creativity"
+        # needs to support emojis
+        font = cv2.FONT_HERSHEY_DUPLEX
+        scale = 3
+        avg_brightness = np.average(img)
+        if avg_brightness > 127:
+            color = (255,255,255)
+        else:
+            color = (0,0,0)
         thickness = 2
-        color = (255, 255, 255)
         # get text size
         (text_width, text_height) = cv2.getTextSize(text, font, scale, thickness)[0]
         # calculate the position of text
         text_x = img.shape[1] // 2 - text_width // 2
         text_y = img.shape[0] // 2 + text_height // 2
 
-        # add text
-        cv2.putText(img, text, (text_x, text_y), font, scale, color, thickness, cv2.LINE_AA)
+        # add outline
+        cv2.putText(img, text, (text_x, text_y), font, scale + 1, color, thickness, cv2.LINE_AA)
 
     img =  mp.ImageClip(img)
     # Crop the image to a 16:9 aspect ratio if needed and resize it to 1080p
@@ -143,7 +153,7 @@ def make_video(video_name, subfolder = None, remove = False):
     
     # edit the image in openCV and return a moviepy image
     clip = create_picture_clip(image_path)
-    audio = edit_audio(audio_paths, loops=1, compilation=False)
+    audio = edit_audio(audio_paths, compilation=False)
     final_clip = add_audio_to_clip(clip, audio, loops=1)
     save_clip(final_clip, subfolder, video_name)
     log_and_cleanup(audio_paths, image_path, remove)
@@ -155,7 +165,7 @@ def make_compilation(video_name, subfolder = None, remove = False, music_count =
     
     # edit the image in openCV and return a moviepy image
     clip = create_picture_clip(image_path)
-    audio = edit_audio(audio_paths, loops=loops, compilation=True)
+    audio = edit_audio(audio_paths, compilation=True)
     final_clip = add_audio_to_clip(clip, audio, loops=loops)
     save_clip(final_clip, subfolder, video_name)
     log_and_cleanup(audio_paths, image_path, remove)
