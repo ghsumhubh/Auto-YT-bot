@@ -57,9 +57,9 @@ def edit_audio(audio_paths, compilation=False, type="lofi"):
 
 def create_picture_clip(picture_path, has_text = False):
     img = cv2.imread(picture_path)
-    img = cv2.convertScaleAbs(img, alpha=1.1, beta=0)
-    # get the color that will contrast the most with the background
 
+    # add blur
+    img = cv2.GaussianBlur(img, (5,5), 0)
     
 
     # add text
