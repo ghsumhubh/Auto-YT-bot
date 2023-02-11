@@ -9,7 +9,6 @@ import subprocess
 
 TEMP_AUDIO_PATH="temp_audio.flac"
 TEMP_AUDIO_PATH_EDITED = "temp_audio_edited.flac"
-TEMP_IMAGE_PATH = "temp_image.jpg"
 
 # TODO: all temp files are created in a temp folder
 # TODO: add a progress bar
@@ -55,41 +54,33 @@ def edit_audio(audio_paths, loops=1, compilation=False):
 
     return mp.AudioFileClip(TEMP_AUDIO_PATH)
 
-
-def edit_picture(picture_path, color_loss=3):
+def create_picture_clip(picture_path, text = None):
     img = cv2.imread(picture_path)
+    img = cv2.convertScaleAbs(img, alpha=1.1, beta=0)
 
-    # Convert the image from BGR to HSL
-    img_hsl = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
+    # add text
+    if text:
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        scale = 1
+        thickness = 2
+        color = (255, 255, 255)
+        # get text size
+        (text_width, text_height) = cv2.getTextSize(text, font, scale, thickness)[0]
+        # calculate the position of text
+        text_x = img.shape[1] // 2 - text_width // 2
+        text_y = img.shape[0] // 2 + text_height // 2
 
-    # Split the HSL image into channels
-    h, l, s = cv2.split(img_hsl)
+        # add text
+        cv2.putText(img, text, (text_x, text_y), font, scale, color, thickness, cv2.LINE_AA)
 
-    # Reduce the saturation channel
-    s = (s / color_loss).astype(np.uint8)
-
-    # Merge the channels back into an HSL image
-    img_hsl = cv2.merge((h, l, s))
-
-    # Convert the HSL image back to BGR
-    img_bgr = cv2.cvtColor(img_hsl, cv2.COLOR_HLS2BGR)
-
-    # Add noise
-    noise = np.random.randint(0, 10, img_bgr.shape[:2], np.uint8)
-    # same but 3 channels
-    noise = np.repeat(noise[:, :, np.newaxis], 3, axis=2)
-    blended = cv2.add(img_bgr, noise)
-    cv2.imwrite(TEMP_IMAGE_PATH, blended)
-
-    img =  mp.ImageClip(TEMP_IMAGE_PATH)
-
-    # Crop the image to a 16:9 aspect ratio if needed
+    img =  mp.ImageClip(img)
+    # Crop the image to a 16:9 aspect ratio if needed and resize it to 1080p
     cropped_image = img.crop(x1=0, y1=0, x2=img.w, y2=int(img.w*9/16))
-
-    # Resize the image to the desired resolution
     img = cropped_image.resize(width=1920, height=1080)
 
     return img
+
+
 
 def remove_temp_files():
     if os.path.exists(TEMP_AUDIO_PATH):
@@ -105,7 +96,7 @@ def add_audio_to_clip(clip, audio, loops=1):
     final_clip = final_clip.set_duration(audio.duration)
     return final_clip
 
-def save_clip(final_clip, subfolder, filename):
+def save_clip(final_clip, subfolder, video_name):
     # check if subfolder "output" exists
     if not os.path.exists("output"):
         os.mkdir("output")
@@ -113,9 +104,9 @@ def save_clip(final_clip, subfolder, filename):
     if subfolder:
         if not os.path.exists(f"output/{subfolder}"):
             os.mkdir(f"output/{subfolder}")
-        final_clip.write_videofile(f"output/{subfolder}/{filename}")
+        final_clip.write_videofile(f"output/{subfolder}/{video_name}.mp4")
     else:
-        final_clip.write_videofile(f"output/{filename}")
+        final_clip.write_videofile(f"output/{video_name}.mp4")
 
 
 def log_and_cleanup(audio_paths, image_path, remove):
@@ -145,25 +136,25 @@ def get_audio_path():
         #audio_file = random.choice(audio_files)
     return "resources/audio/" + audio_file
 
-def make_video(video_name = "video.mp4", subfolder = None, remove = False):
+def make_video(video_name, subfolder = None, remove = False):
 
     image_path = get_image_path()
     audio_paths = [get_audio_path()]
     
     # edit the image in openCV and return a moviepy image
-    clip = edit_picture(image_path, color_loss=2)
+    clip = create_picture_clip(image_path)
     audio = edit_audio(audio_paths, loops=1, compilation=False)
     final_clip = add_audio_to_clip(clip, audio, loops=1)
     save_clip(final_clip, subfolder, video_name)
     log_and_cleanup(audio_paths, image_path, remove)
 
-def make_compilation(video_name = "video.mp4", subfolder = None, remove = False, music_count = 10, loops = 1):
+def make_compilation(video_name, subfolder = None, remove = False, music_count = 10, loops = 1):
 
     image_path = get_image_path()
     audio_paths = [get_audio_path() for i in range(music_count)]
     
     # edit the image in openCV and return a moviepy image
-    clip = edit_picture(image_path, color_loss=2)
+    clip = create_picture_clip(image_path)
     audio = edit_audio(audio_paths, loops=loops, compilation=True)
     final_clip = add_audio_to_clip(clip, audio, loops=loops)
     save_clip(final_clip, subfolder, video_name)

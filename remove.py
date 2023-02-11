@@ -1,4 +1,5 @@
 import os
-def remove_video(filename):
-    os.remove(filename)
-    print("Removed video file: {}".format(filename))
+def remove_video(video_name):
+    path = f"output/{video_name}.mp4"
+    os.remove(path)
+    print("Removed video file: {}".format(path))
