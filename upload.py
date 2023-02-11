@@ -9,7 +9,7 @@ def upload_video(video_name):
     # create a file called "metadata.json"
     create_metadata_file(description=generate_random_description(),video_name=video_name, tags=get_tags())
     # run a command in terminal to upload the video
-    completed_process = subprocess.run(["./youtubeuploader/youtubeuploader", "-filename", video_name, "-metaJSON", "metadata.json"])
+    completed_process = subprocess.run(["./youtubeuploader/youtubeuploader", "-filename", path, "-metaJSON", "metadata.json"])
     # delete the metadata file
     delete_metadata_file()
     
